@@ -1,8 +1,23 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+
+// Declare Google Identity Services types
+declare global {
+  interface Window {
+    google?: {
+      accounts: {
+        id: {
+          initialize: (config: any) => void;
+          renderButton: (element: HTMLElement, config: any) => void;
+          prompt: () => void;
+        };
+      };
+    };
+  }
+}
 
 export default function AuthPage() {
   // Toggle between Login and Register modes
@@ -19,6 +34,62 @@ export default function AuthPage() {
   
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+
+  // Initialize Google Sign-In
+  useEffect(() => {
+    // Load Google Identity Services script
+    const script = document.createElement('script');
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    document.body.appendChild(script);
+
+    script.onload = () => {
+      if (window.google) {
+        window.google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+          callback: handleGoogleSignIn,
+        });
+      }
+    };
+
+    return () => {
+      document.body.removeChild(script);
+    };
+  }, []);
+
+  const handleGoogleSignIn = async (response: any) => {
+    try {
+      setIsLoading(true);
+      
+      // Decode the JWT token to get user info
+      const credential = response.credential;
+      const payload = JSON.parse(atob(credential.split('.')[1]));
+      
+      console.log('Google Sign-In Success:', payload);
+      
+      // Here you would typically send the credential to your backend
+      // For now, we'll simulate a successful login
+      alert(`Welcome ${payload.name}! (${payload.email})`);
+      
+      // Redirect to home page
+      router.push('/');
+      
+    } catch (error) {
+      console.error('Google Sign-In Error:', error);
+      alert('Google Sign-In failed. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleButtonClick = () => {
+    if (window.google) {
+      window.google.accounts.id.prompt();
+    } else {
+      alert('Google Sign-In is still loading. Please try again in a moment.');
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({
@@ -241,8 +312,9 @@ export default function AuthPage() {
               <div>
                 <button
                   type="button" 
-                  className="w-full h-11 flex items-center justify-center px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-gray-900 bg-white/90 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all"
-                  onClick={() => alert('Google login not configured yet.')}
+                  className="w-full h-11 flex items-center justify-center px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-gray-900 bg-white/90 hover:bg-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={handleGoogleButtonClick}
+                  disabled={isLoading}
                 >
                   <img
                     className="h-5 w-5 mr-2"

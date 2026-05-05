@@ -29,7 +29,26 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy on Azure
+
+This application is configured for deployment to Azure Web Apps using GitHub Actions.
+
+### Quick Start
+1. Configure environment variables in Azure Portal (see `DEPLOYMENT_CHECKLIST.md`)
+2. Push to main branch: `git push origin main`
+3. GitHub Actions will automatically build and deploy
+
+### Documentation
+- **Quick Start**: `DEPLOYMENT_CHECKLIST.md` - Step-by-step deployment guide
+- **Full Guide**: `AZURE_DEPLOYMENT.md` - Comprehensive Azure setup documentation
+- **Environment Variables**: `.env.azure.example` - Required Azure configuration
+
+### Deployment URL
+- Production: https://medicalizer.azurewebsites.net
+
+---
+
+## Alternative: Deploy on Vercel
 
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
