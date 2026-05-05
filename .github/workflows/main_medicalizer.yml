@@ -44,7 +44,12 @@ jobs:
           cp -r .next/standalone/. ./deployment/
           # Copy static files (Required for Next.js standalone mode)
           cp -r .next/static ./deployment/.next/static
-          cp -r public ./deployment/public
+          # Copy public folder if it exists and has content
+          if [ -d "public" ] && [ "$(ls -A public 2>/dev/null)" ]; then
+            cp -r public ./deployment/public
+          else
+            mkdir -p ./deployment/public
+          fi
           # Copy package.json so Azure detects the Node.js runtime
           cp package.json ./deployment/
           
