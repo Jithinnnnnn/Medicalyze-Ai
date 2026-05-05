@@ -32,6 +32,8 @@ jobs:
         env:
           # Add any build-time environment variables here
           NODE_ENV: production
+          # Provide a dummy value for build time (actual value set in Azure)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN || 'build-time-placeholder' }}
 
       - name: Create standalone deployment package
         run: |

@@ -3,16 +3,18 @@ import { NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { MEDICAL_SERVICES } from '@/app/data/medical'; // Ensure this path matches your structure
 
-// GitHub Models use the standard OpenAI SDK format!
-const client = new OpenAI({
-  baseURL: "https://models.inference.ai.azure.com",
-  apiKey: process.env.GITHUB_TOKEN, // Make sure this is in your .env.local file
-});
+// Lazy initialization - only create client when needed (at runtime, not build time)
+function getOpenAIClient() {
+  return new OpenAI({
+    baseURL: "https://models.inference.ai.azure.com",
+    apiKey: process.env.GITHUB_TOKEN || '', // Make sure this is in your .env.local file
+  });
+}
 
 export async function POST(req: Request) {
   try {
     const token = process.env.GITHUB_TOKEN || '';
-console.log("Token starts with:", token.substring(0, 15), "...");
+    console.log("Token starts with:", token.substring(0, 15), "...");
     const { symptoms } = await req.json();
 
     if (!symptoms) {
@@ -47,6 +49,7 @@ console.log("Token starts with:", token.substring(0, 15), "...");
     `;
 
     // 3. Call the GitHub Model (using gpt-4o or another available model)
+    const client = getOpenAIClient();
     const response = await client.chat.completions.create({
       model: "gpt-4o", 
       messages: [
